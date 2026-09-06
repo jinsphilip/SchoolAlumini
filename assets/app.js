@@ -127,13 +127,34 @@
       '<td class="contact-col">' + (a.email ? '<a href="mailto:' + esc(a.email) + '">' + esc(a.email) + "</a>" : dash()) + "</td>" +
       '<td class="contact-col">' + (a.facebook ? esc(a.facebook) : dash()) + "</td>" +
       '<td class="contact-col">' + (a.birthday ? esc(formatDate(a.birthday)) : dash()) + "</td>" +
+      '<td>' + editLink(a) + "</td>" +
       "</tr>";
   }
 
   function whatsappBadge(v) {
     if (v === true) { return '<span class="badge badge-yes">Yes</span>'; }
     if (v === false) { return '<span class="badge badge-no">No</span>'; }
-    return '<span class="badge badge-unknown">Unknown</span>';
+    return '<span class="badge badge-unknown" title="Never recorded either way - not necessarily \'not in the group\'">Unknown</span>';
+  }
+
+  function editLink(a) {
+    if (!config.organizerEmail) { return dash(); }
+    var subject = "Correction: " + a.name + " (X-" + a.division + ")";
+    var whatsappLine = a.whatsappGroup === true ? "Yes" : a.whatsappGroup === false ? "No" : "Unknown - please set to Yes or No";
+    var body = [
+      "Is this you, or do you know this person's current details? Fill in what's correct and send.",
+      "",
+      "Name: " + a.name,
+      "Division: X-" + a.division,
+      "In WhatsApp group? (currently: " + whatsappLine + "): ",
+      "Email" + (a.email ? " (currently " + a.email + ")" : "") + ": ",
+      "Facebook" + (a.facebook ? " (currently " + a.facebook + ")" : "") + ": ",
+      "Birthday" + (a.birthday ? " (currently " + formatDate(a.birthday) + ")" : "") + ": ",
+      "",
+      "Anything else:"
+    ].join("\n");
+    var href = "mailto:" + config.organizerEmail + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    return '<a class="edit-link" href="' + href + '">Edit</a>';
   }
 
   // ---- Helpers ----------------------------------------------------------
