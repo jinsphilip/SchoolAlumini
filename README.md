@@ -1,9 +1,15 @@
 # SSLC 1998 Alumni Network
 
+**Live site:** https://jinsphilip.github.io/SchoolAlumini/
+
 A small, static alumni directory for the SSLC batch of 1998 (divisions X-A
 through X-F), built from the batch's shared spreadsheet. No backend, no
 build step — open `index.html` or host the folder as-is (GitHub Pages,
 Netlify, or any static file server).
+
+Deployed automatically to GitHub Pages by
+`.github/workflows/deploy-pages.yml` on every push. Contact details never
+reach the live site — see [Privacy](#privacy) below.
 
 ## What's here
 
