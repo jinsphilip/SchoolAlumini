@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SSLC 1998 Alumni Network</title>
+  <meta name="description" content="Alumni directory for the SSLC batch of 1998, divisions X-A to X-F.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%93%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow" id="schoolName"></p>
+      <h1 id="batchLabel">SSLC Batch of 1998</h1>
+      <p class="tagline" id="tagline"></p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" id="updateLink" href="#update">Update my details</a>
+        <a class="btn btn-ghost" id="whatsappLink" href="#" hidden target="_blank" rel="noopener">Join the WhatsApp group</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="stats" id="stats" aria-label="Batch statistics"></section>
+
+    <section class="directory">
+      <div class="toolbar">
+        <label class="search">
+          <span class="visually-hidden">Search classmates</span>
+          <input id="search" type="search" placeholder="Search by name, division, email…" autocomplete="off">
+        </label>
+        <div class="chips" id="divisionChips" role="group" aria-label="Filter by division"></div>
+        <label class="toggle">
+          <input type="checkbox" id="onlyWhatsapp">
+          <span>In WhatsApp group</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="onlyContact">
+          <span>Has contact details</span>
+        </label>
+      </div>
+
+      <p class="privacy-note" id="privacyNote" hidden>
+        Contact details are not published on this public page. Organisers can load the private
+        data file locally to see emails, Facebook IDs and birthdays.
+      </p>
+
+      <p class="result-count" id="resultCount" aria-live="polite"></p>
+
+      <div class="table-wrap">
+        <table class="alumni" id="alumniTable">
+          <thead>
+            <tr>
+              <th scope="col" data-sort="name" class="sortable" aria-sort="ascending">Name</th>
+              <th scope="col" data-sort="division" class="sortable">Division</th>
+              <th scope="col" data-sort="whatsappGroup" class="sortable">WhatsApp</th>
+              <th scope="col" class="contact-col">Email</th>
+              <th scope="col" class="contact-col">Facebook</th>
+              <th scope="col" class="contact-col">Birthday</th>
+            </tr>
+          </thead>
+          <tbody id="alumniBody"></tbody>
+        </table>
+      </div>
+      <p class="empty" id="emptyState" hidden>No classmates match that search.</p>
+    </section>
+
+    <section class="update" id="update">
+      <h2>Not in the list, or details out of date?</h2>
+      <p>
+        Send your name, division, email, and whether you'd like to join the batch WhatsApp group.
+        The organiser will add you to the directory.
+      </p>
+      <a class="btn btn-primary" id="updateMailto" href="#">Email the organiser</a>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <p>Built for the classmates of 1998. Directory maintained by the batch organisers.</p>
+  </footer>
+
+  <script src="data/config.js"></script>
+  <script src="data/alumni.js"></script>
+  <!-- Optional: git-ignored private file with contact details. Overrides window.ALUMNI when present. -->
+  <script src="data/alumni.private.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

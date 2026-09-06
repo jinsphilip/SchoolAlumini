@@ -1,0 +1,11 @@
+# Contact details (emails, Facebook IDs, birthdays) never go into the public repo.
+data/alumni.private.js
+data/alumni.private.json
+# Source spreadsheets contain the same personal data.
+*.xlsx
+*.xls
+*.csv
+
+__pycache__/
+.DS_Store
+node_modules/
