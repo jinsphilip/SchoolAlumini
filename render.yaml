@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: schoolalumini-api
+    env: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: school_alumni
+      - key: ADMIN_TOKEN
+        sync: false
+      - key: ALLOWED_ORIGIN
+        value: https://jinsphilip.github.io

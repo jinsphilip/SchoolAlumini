@@ -9,3 +9,7 @@ data/alumni.private.json
 __pycache__/
 .DS_Store
 node_modules/
+
+# Backend secrets (Mongo connection string, admin token) - set these in
+# Render's dashboard instead, never commit them.
+server/.env

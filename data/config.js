@@ -6,5 +6,9 @@ window.SITE_CONFIG = {
   // Where "Update my details" requests are sent.
   organizerEmail: "jinsphilipin@gmail.com",
   // Link to the batch WhatsApp group invite, if you want to show a "Join" button.
-  whatsappInviteUrl: ""
+  whatsappInviteUrl: "",
+  // Backend API URL (see "Live editing" section in the repo root README).
+  // Leave blank to keep the site as a static, mailto-only snapshot.
+  // Once deployed on Render it looks like "https://schoolalumini-api.onrender.com".
+  apiBaseUrl: ""
 };
