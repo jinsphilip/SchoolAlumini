@@ -37,6 +37,18 @@ const editLimiter = rateLimit({
   message: { error: "Too many edits from this device recently. Try again later." }
 });
 
+// Nobody visits this URL directly except out of curiosity (the frontend
+// only ever calls /health and /api/*) - a friendly response here instead
+// of Express's default "Cannot GET /" avoids that looking like a broken
+// deploy when it's actually just an unused root path.
+app.get("/", function (req, res) {
+  res.json({
+    ok: true,
+    service: "schoolalumini-api",
+    endpoints: ["/health", "/api/alumni", "/api/alumni/full?token=...", "PATCH /api/alumni/:id"]
+  });
+});
+
 app.get("/health", function (req, res) {
   res.json({ ok: true });
 });
