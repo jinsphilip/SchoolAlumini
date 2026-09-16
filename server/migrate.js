@@ -35,7 +35,7 @@ async function main() {
     }
   }
   const rows = Array.from(byId.values()).map(function (r) {
-    return Object.assign({ email: "", facebook: "", birthday: "" }, r);
+    return Object.assign({ email: "", phone: "", facebook: "", birthday: "", photo: "" }, r);
   });
 
   await connect();

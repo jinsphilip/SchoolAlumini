@@ -8,17 +8,24 @@ const PORT = process.env.PORT || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "";
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "*";
 
-// Contact fields (email, facebook, birthday) are only ever sent to a
-// request carrying the correct admin token - never to the public API.
-const PUBLIC_FIELDS = { _id: 0, id: 1, name: 1, division: 1, batch: 1, whatsappGroup: 1, notes: 1, possibleDuplicate: 1 };
+// Contact fields (email, phone, facebook, birthday) are only ever sent to
+// a request carrying the correct admin token - never to the public API.
+// photo is the one contact-adjacent field that IS public, by design - the
+// point of collecting it is for classmates to recognise each other.
+const PUBLIC_FIELDS = { _id: 0, id: 1, name: 1, division: 1, batch: 1, whatsappGroup: 1, photo: 1, notes: 1, possibleDuplicate: 1 };
 const FULL_FIELDS = { _id: 0 };
 
 const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const PHOTO_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/;
+const PHOTO_MAX_LENGTH = 350000; // ~250KB of image data - plenty for a small avatar
 
 const app = express();
 app.use(cors({ origin: ALLOWED_ORIGIN }));
-app.use(express.json({ limit: "10kb" }));
+// Photos travel as base64 JSON, which runs ~1/3 larger than the raw image -
+// everything else PATCHed is tiny text, so this limit is really just the
+// photo-upload ceiling (enforced again, more precisely, below).
+app.use(express.json({ limit: "600kb" }));
 
 // A handful of edits per device per window is normal for one person
 // fixing their own row; anything more is almost certainly abuse.
@@ -74,6 +81,9 @@ app.patch("/api/alumni/:id", editLimiter, async function (req, res) {
     if (v && !EMAIL_RE.test(v)) { return res.status(400).json({ error: "Invalid email address" }); }
     updates.email = v;
   }
+  if (Object.prototype.hasOwnProperty.call(req.body, "phone")) {
+    updates.phone = String(req.body.phone || "").trim().slice(0, 30);
+  }
   if (Object.prototype.hasOwnProperty.call(req.body, "facebook")) {
     updates.facebook = String(req.body.facebook || "").trim().slice(0, 200);
   }
@@ -81,6 +91,14 @@ app.patch("/api/alumni/:id", editLimiter, async function (req, res) {
     const v = String(req.body.birthday || "").trim();
     if (v && !DATE_RE.test(v)) { return res.status(400).json({ error: "Birthday must be YYYY-MM-DD" }); }
     updates.birthday = v;
+  }
+  if (Object.prototype.hasOwnProperty.call(req.body, "photo")) {
+    const v = String(req.body.photo || "").trim();
+    if (v) {
+      if (v.length > PHOTO_MAX_LENGTH) { return res.status(400).json({ error: "Photo is too large - please use a smaller image" }); }
+      if (!PHOTO_RE.test(v)) { return res.status(400).json({ error: "Photo must be a JPEG, PNG, or WebP image" }); }
+    }
+    updates.photo = v;
   }
   if (Object.keys(updates).length === 0) {
     return res.status(400).json({ error: "No editable fields provided" });

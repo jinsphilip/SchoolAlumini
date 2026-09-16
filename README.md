@@ -23,12 +23,15 @@ on every push) - it can run two ways:
 - `data/config.js` — site title, tagline, organiser email, WhatsApp invite
   link, and the live-mode API URL. Edit and reload, no rebuild needed.
 - `data/alumni.json` / `data/alumni.js` — the **public** directory (name,
-  division, batch year, WhatsApp status), used as the static-mode snapshot
-  and as the seed data for live mode. Safe to commit and publish.
-- `data/alumni.private.js` — the same records **with** email, Facebook ID,
-  and birthday. Generated locally, **git-ignored**, never pushed. In static
-  mode, loading it locally next to `index.html` shows contact columns; in
-  live mode it's only used once, to seed the database (see below).
+  division, batch year, WhatsApp status, and photo - see
+  [Privacy](#privacy) for why photo is the one public field here), used as
+  the static-mode snapshot and as the seed data for live mode. Safe to
+  commit and publish.
+- `data/alumni.private.js` — the same records **with** phone, email,
+  Facebook ID, and birthday. Generated locally, **git-ignored**, never
+  pushed. In static mode, loading it locally next to `index.html` shows
+  contact columns; in live mode it's only used once, to seed the database
+  (see below).
 - `data/import-report.md` — a log of what the import script skipped, fixed,
   or flagged as a possible duplicate. Worth a read after every import.
 - `scripts/import_excel.py` — regenerates all of the above from a class-list
@@ -56,21 +59,24 @@ Re-running the script overwrites `data/alumni.json`, `data/alumni.js`,
 
 ## Privacy
 
-Only names, division, batch year, and WhatsApp-group status are ever public
-— in both modes. Email, Facebook, and birthday are never sent to a visitor
-without the admin token:
+Names, division, batch year, WhatsApp-group status, and **photo** are the
+only fields ever shown publicly, in both modes — photo is deliberately the
+one exception to "contact details stay private," since the whole point of
+collecting it is so classmates recognise each other. Phone, email,
+Facebook, and birthday are never sent to a visitor without the admin token:
 
 - **Static mode**: contact details live solely in the git-ignored
   `data/alumni.private.js`. The public page never fetches or displays it
   unless it's physically present next to `index.html` (i.e. on an
   organiser's own machine).
 - **Live mode**: the public API endpoint (`GET /api/alumni`) only ever
-  returns name/division/batch/WhatsApp/notes — never contact fields, at the
-  database query level, regardless of what's stored. Only a request that
-  presents the correct `ADMIN_TOKEN` (`GET /api/alumni/full?token=...`) gets
-  contact details back. Anyone can *submit* an edit to any field (see
-  [Live editing](#live-editing-optional) for the trust model this assumes),
-  but only the admin token can *read* contact details back.
+  returns name/division/batch/WhatsApp/photo/notes — never phone, email,
+  Facebook, or birthday, at the database query level, regardless of what's
+  stored. Only a request that presents the correct `ADMIN_TOKEN`
+  (`GET /api/alumni/full?token=...`) gets those back. Anyone can *submit*
+  an edit to any editable field (see [Live editing](#live-editing-optional)
+  for the trust model this assumes), but only the admin token can *read*
+  phone/email/Facebook/birthday back.
 
 ## Known data issues
 
@@ -87,8 +93,11 @@ worth confirming with the batch before treating the count as final.
   yourself (edit `data/alumni.private.js` or the spreadsheet + re-import)
   and push.
 - **Live mode**: clicking "Edit" on a row turns it into a small form
-  (WhatsApp status, email, Facebook, birthday) with a Save button that
-  writes straight to the database via the backend API. No email round-trip.
+  (WhatsApp status, phone, email, Facebook, birthday, photo) with a Save
+  button that writes straight to the database via the backend API. Photos
+  are resized and re-compressed to a small JPEG in the browser before
+  upload (typically 20-50KB) so a phone photo doesn't bloat the database
+  or take forever to upload. No email round-trip.
 
 ## Live editing (optional)
 
@@ -165,17 +174,18 @@ contact details. Regular visitors never see or need it.
 
 ### Trust model
 
-Anyone with the site link can edit anyone's WhatsApp status, email,
-Facebook, and birthday (but not their name or division - those aren't
-editable through the API). This fits a closed batch of ~250 people who
+Anyone with the site link can edit anyone's WhatsApp status, phone, email,
+Facebook, birthday, and photo (but not their name or division - those
+aren't editable through the API). This fits a closed batch of ~250 people who
 mostly know each other and matches the original mailto-based "Edit" flow's
 trust level, just without the manual step. The backend does the following,
 and no more:
 
-- Validates email format and birthday format server-side; rejects garbage.
+- Validates email format, birthday format, and photo (must be a JPEG/PNG/
+  WebP data URI under ~250KB) server-side; rejects garbage.
 - Rate-limits edits per device (30 per 15 minutes) to blunt casual abuse.
-- Never returns contact fields from the public endpoint, regardless of the
-  request.
+- Never returns phone/email/Facebook/birthday from the public endpoint,
+  regardless of the request.
 
 It does **not** verify that the person editing a row is that row's actual
 owner - there's no login. If that ever becomes a problem, the fix is adding

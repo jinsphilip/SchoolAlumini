@@ -7,7 +7,7 @@
   var liveMode = !!apiBase;
 
   var alumni = (window.ALUMNI || []).slice();
-  var hasContactData = alumni.some(function (a) { return a.email || a.facebook || a.birthday; });
+  var hasContactData = alumni.some(function (a) { return a.email || a.phone || a.facebook || a.birthday; });
 
   var state = { query: "", division: "", onlyWhatsapp: false, onlyContact: false, sortKey: "name", sortDir: 1, editingId: null };
 
@@ -104,7 +104,7 @@
       return res.json();
     }).then(function (rows) {
       alumni = rows;
-      hasContactData = alumni.some(function (a) { return a.email || a.facebook || a.birthday; });
+      hasContactData = alumni.some(function (a) { return a.email || a.phone || a.facebook || a.birthday; });
     });
   }
 
@@ -240,6 +240,28 @@
         state.editingId = null;
         render();
       }
+      var removePhoto = e.target.closest(".remove-photo-btn");
+      if (removePhoto) {
+        var removeForm = removePhoto.closest(".edit-form");
+        removeForm.photo.value = "";
+        removeForm.querySelector(".photo-preview").src = BLANK_AVATAR;
+      }
+    });
+
+    body.addEventListener("change", function (e) {
+      var fileInput = e.target.closest(".photo-input");
+      if (!fileInput || !fileInput.files || !fileInput.files[0]) { return; }
+      var form = fileInput.closest(".edit-form");
+      var statusEl = form.querySelector(".edit-status");
+      compressImage(fileInput.files[0]).then(function (dataUrl) {
+        form.photo.value = dataUrl;
+        form.querySelector(".photo-preview").src = dataUrl;
+      }).catch(function (err) {
+        statusEl.hidden = false;
+        statusEl.className = "edit-status edit-status-error";
+        statusEl.textContent = err.message;
+        fileInput.value = "";
+      });
     });
 
     if (!liveMode) { return; }
@@ -251,14 +273,47 @@
     });
   }
 
+  // Resizes to a small square-ish avatar and re-encodes as JPEG so a phone
+  // photo (often several MB) turns into ~20-50KB before it ever leaves the
+  // browser - keeps the database small and uploads fast on a weak connection.
+  function compressImage(file) {
+    return new Promise(function (resolve, reject) {
+      if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+        reject(new Error("Please choose a JPEG, PNG, or WebP image."));
+        return;
+      }
+      var reader = new FileReader();
+      reader.onerror = function () { reject(new Error("Could not read that file.")); };
+      reader.onload = function () {
+        var img = new Image();
+        img.onerror = function () { reject(new Error("Could not read that image.")); };
+        img.onload = function () {
+          var maxDim = 320;
+          var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          var w = Math.max(1, Math.round(img.width * scale));
+          var h = Math.max(1, Math.round(img.height * scale));
+          var canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", 0.75));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   function saveEdit(form) {
     var id = form.getAttribute("data-id");
     var waVal = form.whatsappGroup.value;
     var payload = {
       whatsappGroup: waVal === "yes" ? true : waVal === "no" ? false : null,
+      phone: form.phone.value.trim(),
       email: form.email.value.trim(),
       facebook: form.facebook.value.trim(),
-      birthday: form.birthday.value.trim()
+      birthday: form.birthday.value.trim(),
+      photo: form.photo.value
     };
     var statusEl = form.querySelector(".edit-status");
     var saveBtn = form.querySelector(".btn-save");
@@ -327,9 +382,10 @@
       editCell = editLink(a);
     }
     return "<tr>" +
-      '<td class="name">' + esc(a.name) + flag + note + "</td>" +
+      '<td class="name">' + avatarHtml(a, 32) + '<span class="name-text">' + esc(a.name) + flag + note + "</span></td>" +
       '<td data-label="Division"><span class="badge badge-div">X-' + esc(a.division) + "</span></td>" +
       '<td data-label="WhatsApp">' + whatsappBadge(a.whatsappGroup) + "</td>" +
+      '<td class="contact-col" data-label="Phone">' + (a.phone ? esc(a.phone) : dash()) + "</td>" +
       '<td class="contact-col" data-label="Email">' + (a.email ? '<a href="mailto:' + esc(a.email) + '">' + esc(a.email) + "</a>" : dash()) + "</td>" +
       '<td class="contact-col" data-label="Facebook">' + (a.facebook ? esc(a.facebook) : dash()) + "</td>" +
       '<td class="contact-col" data-label="Birthday">' + (a.birthday ? esc(formatDate(a.birthday)) : dash()) + "</td>" +
@@ -337,14 +393,35 @@
       "</tr>";
   }
 
+  var BLANK_AVATAR = "data:image/svg+xml," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="#e2ddd2"/></svg>'
+  );
+
+  function avatarHtml(a, size) {
+    if (a.photo) {
+      return '<img class="avatar" width="' + size + '" height="' + size + '" src="' + esc(a.photo) + '" alt="">';
+    }
+    var initials = (a.name || "").split(" ").filter(Boolean).slice(0, 2).map(function (w) { return w[0]; }).join("").toUpperCase();
+    return '<div class="avatar avatar-placeholder" style="width:' + size + "px;height:" + size + 'px">' + esc(initials) + "</div>";
+  }
+
   function editFormHtml(a) {
     var wa = a.whatsappGroup === true ? "yes" : a.whatsappGroup === false ? "no" : "unknown";
     return '<form class="edit-form" data-id="' + esc(a.id) + '">' +
+      '<div class="photo-edit">' +
+        '<img class="photo-preview" src="' + (a.photo ? esc(a.photo) : BLANK_AVATAR) + '" alt="">' +
+        '<div class="photo-edit-actions">' +
+          '<label class="photo-upload-btn">Choose photo<input type="file" class="photo-input" accept="image/jpeg,image/png,image/webp"></label>' +
+          '<button type="button" class="btn-cancel remove-photo-btn">Remove</button>' +
+        "</div>" +
+        '<input type="hidden" name="photo" value="' + (a.photo ? esc(a.photo) : "") + '">' +
+      "</div>" +
       '<label>WhatsApp<select name="whatsappGroup">' +
         '<option value="unknown"' + (wa === "unknown" ? " selected" : "") + ">Unknown</option>" +
         '<option value="yes"' + (wa === "yes" ? " selected" : "") + ">Yes</option>" +
         '<option value="no"' + (wa === "no" ? " selected" : "") + ">No</option>" +
       "</select></label>" +
+      '<label>Phone (WhatsApp)<input type="tel" name="phone" value="' + esc(a.phone || "") + '" placeholder="+91 98765 43210"></label>' +
       '<label>Email<input type="email" name="email" value="' + esc(a.email || "") + '" placeholder="you@example.com"></label>' +
       '<label>Facebook<input type="text" name="facebook" value="' + esc(a.facebook || "") + '" placeholder="profile name or URL"></label>' +
       '<label>Birthday<input type="date" name="birthday" value="' + esc(a.birthday || "") + '"></label>' +
@@ -366,9 +443,11 @@
       "Name: " + a.name,
       "Division: X-" + a.division,
       "In WhatsApp group? (currently: " + whatsappLine + "): ",
+      "Phone / WhatsApp number" + (a.phone ? " (currently " + a.phone + ")" : "") + ": ",
       "Email" + (a.email ? " (currently " + a.email + ")" : "") + ": ",
       "Facebook" + (a.facebook ? " (currently " + a.facebook + ")" : "") + ": ",
       "Birthday" + (a.birthday ? " (currently " + formatDate(a.birthday) + ")" : "") + ": ",
+      "Photo: please attach one to this email if you'd like it shown in the directory",
       "",
       "Anything else:"
     ].join("\n");

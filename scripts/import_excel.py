@@ -29,7 +29,7 @@ except ImportError:  # pragma: no cover
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 EMAIL_RE = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
-CONTACT_FIELDS = ("email", "facebook", "birthday")
+CONTACT_FIELDS = ("email", "facebook", "birthday", "phone")
 
 
 def clean_text(value):
@@ -157,8 +157,10 @@ def import_workbook(path, batch):
                     "batch": batch,
                     "whatsappGroup": parse_flag(cell(row, index, "whatsapp")),
                     "email": email,
+                    "phone": "",  # not in the source spreadsheet - filled in later via live edits
                     "facebook": clean_text(cell(row, index, "facebook")),
                     "birthday": birthday,
+                    "photo": "",  # public field - a data: URI once someone uploads one via live edits
                     "notes": "; ".join(notes),
                 }
             )

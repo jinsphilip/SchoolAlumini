@@ -201,6 +201,59 @@ table.alumni { width: 100%; border-collapse: collapse; min-width: 560px; }
 .edit-link.edit-trigger,
 .edit-link.mailto-edit-trigger { background: none; cursor: pointer; font: inherit; }
 
+.avatar {
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--line);
+  flex-shrink: 0;
+}
+.avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  background: #eceff3;
+}
+.alumni td.name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.photo-edit { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.photo-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--line);
+  flex-shrink: 0;
+}
+.photo-edit-actions { display: flex; flex-direction: column; gap: 4px; }
+.photo-upload-btn {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  text-align: center;
+}
+.photo-upload-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+.photo-upload-btn input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+.remove-photo-btn { padding: 5px 12px; font-size: 12px; }
+
 .edit-cell { min-width: 200px; }
 .edit-form { display: flex; flex-direction: column; gap: 6px; }
 .edit-form label {
@@ -314,7 +367,7 @@ table.alumni { width: 100%; border-collapse: collapse; min-width: 560px; }
   padding: 0;
   border-bottom: none;
 }
-.cards-mode table.alumni td.name { font-size: 16px; }
+.cards-mode table.alumni td.name { display: flex; align-items: center; gap: 10px; font-size: 16px; }
 .cards-mode table.alumni td[data-label]:not(.edit-cell)::before {
   content: attr(data-label);
   display: block;
