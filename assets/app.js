@@ -45,13 +45,26 @@
 
   // mailto: links silently do nothing in a normal browser tab if there's no
   // handler - but plenty of in-app browsers (WhatsApp, Instagram, etc.) try
-  // to load "mailto:..." as a real page instead and show a blank screen.
-  // Attempt the handoff, but always also copy the message so there's a
-  // usable fallback regardless of what the surrounding app does with it.
+  // to load "mailto:..." as a real page instead, which replaces this page
+  // with a blank one since there's nothing to render. Trigger the handoff
+  // through a hidden iframe instead of window.location - the OS/browser
+  // still sees the mailto: request and can hand it to a mail app, but the
+  // visible page is never navigated, so it can't go blank. Always also
+  // copy the message so there's a usable fallback either way.
   function openMailto(to, subject, body) {
     var href = "mailto:" + to + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
     var plainText = "To: " + to + "\nSubject: " + subject + "\n\n" + body;
-    window.location.href = href;
+    try {
+      var iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = href;
+      document.body.appendChild(iframe);
+      setTimeout(function () {
+        if (iframe.parentNode) { iframe.parentNode.removeChild(iframe); }
+      }, 1000);
+    } catch (e) {
+      // Fine - the copy-to-clipboard fallback below still covers this.
+    }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(plainText).then(function () {
         showToast("Opening your email app… If nothing happens, the message was copied - paste it into a new email to " + to + ".");
