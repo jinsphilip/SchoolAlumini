@@ -136,16 +136,6 @@ window.ALUMNI = [
     "notes": ""
   },
   {
-    "id": "a-16",
-    "name": "Shanil T P",
-    "division": "A",
-    "batch": 1998,
-    "whatsappGroup": true,
-    "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
-  },
-  {
     "id": "a-17",
     "name": "Thejas K V",
     "division": "A",
@@ -197,8 +187,7 @@ window.ALUMNI = [
     "batch": 1998,
     "whatsappGroup": null,
     "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
+    "notes": "Merged duplicate entries from division(s) X-E on 2026-09-16"
   },
   {
     "id": "a-23",
@@ -243,8 +232,7 @@ window.ALUMNI = [
     "batch": 1998,
     "whatsappGroup": null,
     "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
+    "notes": "Merged duplicate entries from division(s) X-D on 2026-09-16"
   },
   {
     "id": "a-28",
@@ -371,16 +359,6 @@ window.ALUMNI = [
     "whatsappGroup": null,
     "photo": "",
     "notes": "Email column had 'Reecooper' (not an email address)"
-  },
-  {
-    "id": "a-42",
-    "name": "Varghese Mathew",
-    "division": "A",
-    "batch": 1998,
-    "whatsappGroup": null,
-    "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
   },
   {
     "id": "b-01",
@@ -621,10 +599,9 @@ window.ALUMNI = [
     "name": "Deepa Divakaran",
     "division": "B",
     "batch": 1998,
-    "whatsappGroup": null,
+    "whatsappGroup": true,
     "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
+    "notes": "Merged duplicate entries from division(s) X-F on 2026-09-16"
   },
   {
     "id": "b-28",
@@ -930,8 +907,7 @@ window.ALUMNI = [
     "batch": 1998,
     "whatsappGroup": true,
     "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
+    "notes": "Merged duplicate entries from division(s) X-A, X-F on 2026-09-16"
   },
   {
     "id": "c-23",
@@ -1348,16 +1324,6 @@ window.ALUMNI = [
     "notes": ""
   },
   {
-    "id": "d-26",
-    "name": "Jeena George",
-    "division": "D",
-    "batch": 1998,
-    "whatsappGroup": null,
-    "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
-  },
-  {
     "id": "d-27",
     "name": "Leenamole C O",
     "division": "D",
@@ -1653,16 +1619,6 @@ window.ALUMNI = [
     "whatsappGroup": null,
     "photo": "",
     "notes": ""
-  },
-  {
-    "id": "e-21",
-    "name": "Asha John",
-    "division": "E",
-    "batch": 1998,
-    "whatsappGroup": null,
-    "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
   },
   {
     "id": "e-22",
@@ -2202,27 +2158,6 @@ window.ALUMNI = [
     "batch": 1998,
     "whatsappGroup": true,
     "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
-  },
-  {
-    "id": "f-42",
-    "name": "Deepa Divakaran",
-    "division": "F",
-    "batch": 1998,
-    "whatsappGroup": true,
-    "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
-  },
-  {
-    "id": "f-43",
-    "name": "Varghese Mathew",
-    "division": "F",
-    "batch": 1998,
-    "whatsappGroup": true,
-    "photo": "",
-    "notes": "",
-    "possibleDuplicate": true
+    "notes": "Merged duplicate entries from division(s) X-A on 2026-09-16"
   }
 ];
