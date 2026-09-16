@@ -54,6 +54,7 @@ body {
   display: inline-block;
   padding: 10px 18px;
   border-radius: 999px;
+  font: inherit;
   font-weight: 600;
   text-decoration: none;
   border: 1px solid transparent;
@@ -197,7 +198,8 @@ table.alumni { width: 100%; border-collapse: collapse; min-width: 560px; }
   white-space: nowrap;
 }
 .edit-link:hover { background: var(--accent-soft); border-color: var(--accent); }
-.edit-link.edit-trigger { background: none; cursor: pointer; font: inherit; }
+.edit-link.edit-trigger,
+.edit-link.mailto-edit-trigger { background: none; cursor: pointer; font: inherit; }
 
 .edit-cell { min-width: 200px; }
 .edit-form { display: flex; flex-direction: column; gap: 6px; }
@@ -265,6 +267,22 @@ table.alumni { width: 100%; border-collapse: collapse; min-width: 560px; }
 .update p { margin: 0 0 16px; color: var(--muted); max-width: 620px; }
 
 .footer { padding: 16px 20px 40px; color: var(--muted); font-size: 13px; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  max-width: min(92vw, 420px);
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+  z-index: 100;
+}
 
 @media (max-width: 600px) {
   .hero { padding: 40px 0 34px; }

@@ -25,23 +25,52 @@
     wa.hidden = false;
   }
 
-  var mailto = buildMailto();
-  $("updateMailto").href = mailto;
-  if (!config.organizerEmail) { $("updateMailto").hidden = true; }
+  if (!config.organizerEmail) {
+    $("updateMailto").hidden = true;
+  } else {
+    $("updateMailto").addEventListener("click", function () {
+      var subject = (config.batchLabel || "Alumni") + " - update my details";
+      var body = [
+        "Name:", "Division (A-F):", "Email:", "Phone / WhatsApp:", "Facebook:", "Birthday:",
+        "Add me to the batch WhatsApp group (yes/no):", "", "Anything else:"
+      ].join("\n");
+      openMailto(config.organizerEmail, subject, body);
+    });
+  }
   if (liveMode) {
     $("update").querySelector("p").textContent =
       "Find your row below and click Edit - changes save immediately, no email needed. " +
       "If you're not listed at all, email the organiser instead.";
   }
 
-  function buildMailto() {
-    if (!config.organizerEmail) { return "#"; }
-    var subject = (config.batchLabel || "Alumni") + " - update my details";
-    var body = [
-      "Name:", "Division (A-F):", "Email:", "Phone / WhatsApp:", "Facebook:", "Birthday:",
-      "Add me to the batch WhatsApp group (yes/no):", "", "Anything else:"
-    ].join("\n");
-    return "mailto:" + config.organizerEmail + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  // mailto: links silently do nothing in a normal browser tab if there's no
+  // handler - but plenty of in-app browsers (WhatsApp, Instagram, etc.) try
+  // to load "mailto:..." as a real page instead and show a blank screen.
+  // Attempt the handoff, but always also copy the message so there's a
+  // usable fallback regardless of what the surrounding app does with it.
+  function openMailto(to, subject, body) {
+    var href = "mailto:" + to + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    var plainText = "To: " + to + "\nSubject: " + subject + "\n\n" + body;
+    window.location.href = href;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(plainText).then(function () {
+        showToast("Opening your email app… If nothing happens, the message was copied - paste it into a new email to " + to + ".");
+      }).catch(function () {
+        showToast("Opening your email app… If nothing happens, send this yourself to " + to + ": “" + subject + "”");
+      });
+    } else {
+      showToast("Opening your email app… If nothing happens, send this yourself to " + to + ": “" + subject + "”");
+    }
+  }
+
+  var toastTimer;
+  function showToast(message) {
+    var el = $("toast");
+    if (!el) { return; }
+    el.textContent = message;
+    el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.hidden = true; }, 7000);
   }
 
   // ---- Boot ---------------------------------------------------------------
@@ -176,12 +205,17 @@
     });
   }
 
-  // ---- Editing (live mode only) ------------------------------------------
+  // ---- Editing ------------------------------------------------------------
   function bindEditing() {
-    if (!liveMode) { return; }
     var body = $("alumniBody");
 
     body.addEventListener("click", function (e) {
+      var mailtoBtn = e.target.closest(".mailto-edit-trigger");
+      if (mailtoBtn) {
+        openMailto(config.organizerEmail, mailtoBtn.getAttribute("data-subject"), mailtoBtn.getAttribute("data-body"));
+        return;
+      }
+      if (!liveMode) { return; }
       var trigger = e.target.closest(".edit-trigger");
       if (trigger) {
         state.editingId = trigger.getAttribute("data-id");
@@ -195,6 +229,7 @@
       }
     });
 
+    if (!liveMode) { return; }
     body.addEventListener("submit", function (e) {
       var form = e.target.closest(".edit-form");
       if (!form) { return; }
@@ -324,8 +359,7 @@
       "",
       "Anything else:"
     ].join("\n");
-    var href = "mailto:" + config.organizerEmail + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-    return '<a class="edit-link" href="' + href + '">Edit</a>';
+    return '<button type="button" class="edit-link mailto-edit-trigger" data-subject="' + esc(subject) + '" data-body="' + esc(body) + '">Edit</button>';
   }
 
   function whatsappBadge(v) {
