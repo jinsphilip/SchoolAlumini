@@ -79,7 +79,28 @@
       if (!liveMode) { $("privacyNote").hidden = false; }
       $("onlyContact").closest(".toggle").hidden = true;
     }
+
+    var resizeTimer;
+    window.addEventListener("resize", function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(syncLayoutMode, 150);
+    });
+
     render();
+  }
+
+  // Admin view (7 columns) and public view (4 columns) overflow the table
+  // at different widths, so a fixed CSS breakpoint can't cover both -
+  // measure the actual rendered width instead and switch to stacked cards
+  // whenever the table would otherwise need horizontal scrolling (which
+  // hides the Edit button off-screen with no visual hint that it's there).
+  function syncLayoutMode() {
+    var wrap = document.querySelector(".table-wrap");
+    var table = $("alumniTable");
+    if (!wrap || !table) { return; }
+    wrap.classList.remove("cards-mode");
+    var overflowing = table.scrollWidth > wrap.clientWidth + 1;
+    wrap.classList.toggle("cards-mode", overflowing);
   }
 
   function renderModeNote() {
@@ -245,6 +266,7 @@
     $("resultCount").textContent = rows.length === alumni.length
       ? "Showing all " + rows.length + " classmates"
       : "Showing " + rows.length + " of " + alumni.length + " classmates";
+    syncLayoutMode();
   }
 
   function rowHtml(a) {
@@ -258,12 +280,12 @@
     }
     return "<tr>" +
       '<td class="name">' + esc(a.name) + flag + note + "</td>" +
-      '<td><span class="badge badge-div">X-' + esc(a.division) + "</span></td>" +
-      "<td>" + whatsappBadge(a.whatsappGroup) + "</td>" +
-      '<td class="contact-col">' + (a.email ? '<a href="mailto:' + esc(a.email) + '">' + esc(a.email) + "</a>" : dash()) + "</td>" +
-      '<td class="contact-col">' + (a.facebook ? esc(a.facebook) : dash()) + "</td>" +
-      '<td class="contact-col">' + (a.birthday ? esc(formatDate(a.birthday)) : dash()) + "</td>" +
-      '<td class="edit-cell">' + editCell + "</td>" +
+      '<td data-label="Division"><span class="badge badge-div">X-' + esc(a.division) + "</span></td>" +
+      '<td data-label="WhatsApp">' + whatsappBadge(a.whatsappGroup) + "</td>" +
+      '<td class="contact-col" data-label="Email">' + (a.email ? '<a href="mailto:' + esc(a.email) + '">' + esc(a.email) + "</a>" : dash()) + "</td>" +
+      '<td class="contact-col" data-label="Facebook">' + (a.facebook ? esc(a.facebook) : dash()) + "</td>" +
+      '<td class="contact-col" data-label="Birthday">' + (a.birthday ? esc(formatDate(a.birthday)) : dash()) + "</td>" +
+      '<td class="edit-cell" data-label="Edit">' + editCell + "</td>" +
       "</tr>";
   }
 

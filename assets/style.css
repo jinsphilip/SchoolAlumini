@@ -271,3 +271,42 @@ table.alumni { width: 100%; border-collapse: collapse; min-width: 560px; }
   .stats { margin-top: -18px; }
   .stat .value { font-size: 24px; }
 }
+
+/* Applied by JS (not a media query) when the table actually overflows its
+   container - admin view (7 columns) and public view (4 columns) overflow
+   at different widths, so a fixed breakpoint can't cover both. A scrolling
+   table hides the Edit button off-screen with no visual hint, so once it
+   would overflow, switch to one stacked card per person instead. */
+.table-wrap.cards-mode { overflow-x: visible; border: none; background: none; box-shadow: none; }
+.cards-mode table.alumni { min-width: 0; }
+.cards-mode table.alumni thead { display: none; }
+.cards-mode table.alumni tbody { display: flex; flex-direction: column; gap: 10px; }
+.cards-mode table.alumni tr {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+}
+.cards-mode table.alumni td {
+  display: block;
+  padding: 0;
+  border-bottom: none;
+}
+.cards-mode table.alumni td.name { font-size: 16px; }
+.cards-mode table.alumni td[data-label]:not(.edit-cell)::before {
+  content: attr(data-label);
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.cards-mode .edit-cell { min-width: 0; margin-top: 4px; }
+.cards-mode .edit-form-actions .btn-save,
+.cards-mode .edit-form-actions .btn-cancel { flex: 1; text-align: center; }
