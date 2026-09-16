@@ -10,5 +10,5 @@ window.SITE_CONFIG = {
   // Backend API URL (see "Live editing" section in the repo root README).
   // Leave blank to keep the site as a static, mailto-only snapshot.
   // Once deployed on Render it looks like "https://schoolalumini-api.onrender.com".
-  apiBaseUrl: ""
+  apiBaseUrl: "https://schoolalumini.onrender.com"
 };
